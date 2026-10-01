@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติการทำงานและผลงานการดูแลโรงพยาบาล | Healthcare Operations Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                    },
+                    colors: {
+                        medical: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#035480',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        mint: {
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-active {
+            color: #0284c7;
+            border-bottom: 3px solid #0284c7;
+            background-color: #f0f9ff;
+            font-weight: 600;
+        }
+        .mobile-tab-active {
+            background-color: #0284c7;
+            color: white;
+            font-weight: 600;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-700 h-full flex flex-col min-h-screen relative">
+
+    <div id="login-overlay" class="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full p-6 sm:p-8 text-center fade-in">
+            <!-- Header Icon -->
+            <div class="w-16 h-16 bg-medical-50 text-medical-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-inner border border-medical-100">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-slate-800">เข้าสู่ระบบดูข้อมูล</h2>
+            <p class="text-slate-500 text-sm mt-1 mb-6">กรุณากรอกรหัสผ่านเพื่อเข้าชมประวัติการทำงานและการดูแลโรงพยาบาล</p>
+
+            <!-- Demo Passcode Hint Card -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-6 text-left flex items-center gap-3">
+                <i class="fa-solid fa-key text-amber-600 text-lg"></i>
+                <div class="text-xs text-amber-800">
+                    <span class="font-bold block">รหัสผ่านทดสอบการใช้งาน (Demo Password):</span>
+                    <code class="bg-amber-100 px-2 py-0.5 rounded font-mono font-bold text-amber-900 text-sm">1234</code>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div class="relative">
+                    <input type="password" 
+                           id="passcode-input" 
+                           placeholder="กรอกรหัสผ่าน 4 หลัก" 
+                           maxlength="20"
+                           class="w-full px-4 py-3.5 pl-11 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500 focus:bg-white text-center font-mono text-lg tracking-widest text-slate-800 placeholder:text-slate-400 placeholder:font-sans placeholder:text-sm placeholder:tracking-normal transition-all"
+                           required>
+                    <i class="fa-solid fa-shield-halved absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                </div>
+
+                <!-- Error Message -->
+                <div id="login-error" class="hidden text-rose-500 text-xs font-semibold flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-circle-exclamation"></i> รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง
+                </div>
+
+                <button type="submit" class="w-full bg-medical-600 hover:bg-medical-700 active:bg-medical-800 text-white font-semibold py-3.5 px-4 rounded-xl shadow-lg shadow-medical-600/30 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ
+                </button>
+            </form>
+
+            <p class="text-xs text-slate-400 mt-6">ระบบป้องกันข้อมูลความลับเฉพาะผู้ได้รับอนุญาตเท่านั้น</p>
+        </div>
+    </div>
+
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur shadow-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="switchTab('about')">
+                        <div class="bg-medical-600 text-white p-2.5 rounded-xl shadow-md">
+                            <i class="fa-solid fa-hospital-user text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-lg font-bold text-slate-800 block leading-tight">Healthcare Admin</span>
+                            <span class="text-xs text-medical-600 font-medium"> Operations Portfolio</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Menu (6 Tabs + Logout) -->
+                <nav class="hidden lg:flex space-x-1">
+                    <button onclick="switchTab('about')" id="nav-about" class="tab-btn nav-link px-3 inline-flex items-center text-sm font-medium text-slate-600 hover:text-medical-600 hover:bg-slate-50 transition-all rounded-t-lg">
+                        <i class="fa-solid fa-user-doctor mr-1.5"></i>แนะนำตัวเอง
+                    </button>
+                    <button onclick="switchTab('hosp1')" id="nav-hosp1" class="tab-btn nav-link px-3 inline-flex items-center text-sm font-medium text-slate-600 hover:text-medical-600 hover:bg-slate-50 transition-all rounded-t-lg">
+                        <i class="fa-solid fa-hospital mr-1.5"></i>รพ.หนึ่ง
+                    </button>
+                    <button onclick="switchTab('hosp2')" id="nav-hosp2" class="tab-btn nav-link px-3 inline-flex items-center text-sm font-medium text-slate-600 hover:text-medical-600 hover:bg-slate-50 transition-all rounded-t-lg">
+                        <i class="fa-solid fa-hospital mr-1.5"></i>รพ.สอง
+                    </button>
+                    <button onclick="switchTab('hosp3')" id="nav-hosp3" class="tab-btn nav-link px-3 inline-flex items-center text-sm font-medium text-slate-600 hover:text-medical-600 hover:bg-slate-50 transition-all rounded-t-lg">
+                        <i class="fa-solid fa-hospital mr-1.5"></i>รพ.สาม
+                    </button>
+                    <button onclick="switchTab('hosp4')" id="nav-hosp4" class="tab-btn nav-link px-3 inline-flex items-center text-sm font-medium text-slate-600 hover:text-medical-600 hover:bg-slate-50 transition-all rounded-t-lg">
+                        <i class="fa-solid fa-hospital mr-1.5"></i>รพ.สี่
+                    </button>
+                    <button onclick="switchTab('hosp5')" id="nav-hosp5" class="tab-btn nav-link px-3 inline-flex items-center text-sm font-medium text-slate-600 hover:text-medical-600 hover:bg-slate-50 transition-all rounded-t-lg">
+                        <i class="fa-solid fa-hospital mr-1.5"></i>รพ.ห้า
+                    </button>
+                </nav>
+
+                <!-- Desktop Logout Button -->
+                <div class="hidden lg:flex items-center">
+                    <button onclick="handleLogout()" class="text-xs text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 font-semibold px-3 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center lg:hidden gap-2">
+                    <button onclick="handleLogout()" class="text-xs text-rose-600 bg-rose-50 border border-rose-200 font-semibold p-2 rounded-lg" title="ออกจากระบบ">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-slate-600 hover:text-slate-900 focus:outline-none p-2 rounded-md">
+                        <i class="fa-solid fa-bars text-xl" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-1 shadow-lg">
+            <button onclick="switchTab('about')" id="mnav-about" class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center">
+                <i class="fa-solid fa-user-doctor w-6 text-medical-600"></i> แนะนำตัวเอง (About Me)
+            </button>
+            <button onclick="switchTab('hosp1')" id="mnav-hosp1" class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center">
+                <i class="fa-solid fa-hospital w-6 text-medical-600"></i> รพ.หนึ่ง (สัญญา 3 ปี)
+            </button>
+            <button onclick="switchTab('hosp2')" id="mnav-hosp2" class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center">
+                <i class="fa-solid fa-hospital w-6 text-medical-600"></i> รพ.สอง (สัญญา 2 ปี)
+            </button>
+            <button onclick="switchTab('hosp3')" id="mnav-hosp3" class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center">
+                <i class="fa-solid fa-hospital w-6 text-medical-600"></i> รพ.สาม (สัญญา 1 ปี)
+            </button>
+            <button onclick="switchTab('hosp4')" id="mnav-hosp4" class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center">
+                <i class="fa-solid fa-hospital w-6 text-medical-600"></i> รพ.สี่ (สัญญา 2 ปี)
+            </button>
+            <button onclick="switchTab('hosp5')" id="mnav-hosp5" class="mobile-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center">
+                <i class="fa-solid fa-hospital w-6 text-medical-600"></i> รพ.ห้า (สัญญา 3 ปี)
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <section id="page-about" class="page-content fade-in space-y-8">
+            <!-- Hero Profile Banner -->
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-medical-50 rounded-full blur-3xl -z-0 transform translate-x-20 -translate-y-20"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 lg:gap-8">
+                    <div class="relative flex-shrink-0">
+                        <img src="https://placehold.co/180x180/0284c7/ffffff?text=Healthcare+Manager" 
+                             alt="Profile Photo" 
+                             class="w-36 h-36 sm:w-44 sm:h-44 rounded-2xl object-cover shadow-md border-4 border-white">
+                        <span class="absolute bottom-2 right-2 bg-mint-500 text-white p-2 rounded-full shadow border-2 border-white" title="พร้อมรับงานบริหาร/สัญญา">
+                            <i class="fa-solid fa-check text-xs"></i>
+                        </span>
+                    </div>
+
+                    <div class="flex-grow text-center md:text-left">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-medical-50 text-medical-700 text-xs font-semibold mb-3 border border-medical-100">
+                            <i class="fa-solid fa-briefcase"></i> ผู้เชี่ยวชาญการบริหารจัดการระบบงานโรงพยาบาล
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">สมชาย รักบริการ (Healthcare Operations Specialist)</h1>
+                        <p class="text-slate-600 text-sm sm:text-base mb-4 leading-relaxed max-w-3xl">
+                            มีประสบการณ์มากกว่า 10 ปี ในการบริหารจัดการงานปฏิบัติการโรงพยาบาล การบริหารกำลังพล (Manpower Management), การจัดตารางกะ/เวรพนักงาน, ควบคุมคุณภาพงานบริการ (QA/QC), งานเอกสารสัญญา และคลังสินค้าสาขาประจำโรงพยาบาลทั้ง 5 แห่ง
+                        </p>
+                        
+                        <!-- Quick Stats Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center md:text-left">
+                                <span class="block text-2xl font-bold text-medical-600">5 แห่ง</span>
+                                <span class="text-xs text-slate-500">โรงพยาบาลที่ดูแล</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center md:text-left">
+                                <span class="block text-2xl font-bold text-medical-600">11 ปี</span>
+                                <span class="text-xs text-slate-500">รวมระยะเวลาสัญญา</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center md:text-left">
+                                <span class="block text-2xl font-bold text-medical-600">150+</span>
+                                <span class="text-xs text-slate-500">กำลังพลที่บริหาร</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center md:text-left">
+                                <span class="block text-2xl font-bold text-mint-600">98%</span>
+                                <span class="text-xs text-slate-500">KPI ความพึงพอใจ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills & Competencies -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-medical-50 text-medical-600 flex items-center justify-center text-lg font-bold mb-4">
+                        <i class="fa-solid fa-users-gear"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">การบริหารกำลังพล & ตารางเวร</h3>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-medical-500 text-xs"></i> จัดตารางกะ (Shift Scheduling) ให้ครอบคลุม 24/7</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-medical-500 text-xs"></i> การสรรหาและอบรมพนักงานก่อนเริ่มงาน</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-medical-500 text-xs"></i> บริหารกำลังพลสำรองฉุกเฉิน (OT & Backup)</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-medical-50 text-medical-600 flex items-center justify-center text-lg font-bold mb-4">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">การบริหารสัญญา & คลังสินค้า</h3>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-medical-500 text-xs"></i> ควบคุมงบประมาณและเงื่อนไขตามสัญญา</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-medical-500 text-xs"></i> บริหารคลังสินค้าสาขาและเวชภัณฑ์ประจำจุด</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-medical-500 text-xs"></i> จัดทำเอกสารเบิกจ่ายและรายงานสรุปประจำเดือน</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-medical-50 text-medical-600 flex items-center justify-center text-lg font-bold mb-4">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">การควบคุมคุณภาพ (QA/QC)</h3>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-medical-500 text-xs"></i> ตรวจสอบมาตรฐานบริการตามสเปกโรงพยาบาล</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-medical-500 text-xs"></i> จัดการข้อร้องเรียนลูกค้า (Incident Report)</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-medical-500 text-xs"></i> ประสานงานกับกรรมการตรวจรับงานของ รพ.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Timeline Summary of Hospitals -->
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">สรุปภาพรวมการดูแลโรงพยาบาลทั้ง 5 แห่ง</h2>
+                        <p class="text-xs text-slate-500">คลิกที่การ์ดเพื่อดูรายละเอียดขอบเขตงานและสัญญาของแต่ละโรงพยาบาล</p>
+                    </div>
+                    <span class="text-xs bg-slate-100 text-slate-600 font-medium px-3 py-1.5 rounded-lg border border-slate-200">
+                        รวมทั้งสิ้น 5 สัญญา
+                    </span>
+                </div>
+
+                <!-- Hospital Summary Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Card Hosp 1 -->
+                    <div onclick="switchTab('hosp1')" class="cursor-pointer group p-4 rounded-xl border border-slate-200 hover:border-medical-500 hover:shadow-md transition-all bg-white relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">กำลังดำเนินการ</span>
+                            <span class="text-xs text-medical-700 font-bold bg-medical-50 px-2 py-0.5 rounded">สัญญา 3 ปี</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-medical-600 transition-colors">รพ.หนึ่ง (Hospital 1)</h3>
+                        <p class="text-xs text-slate-500 mt-1">ดูแลงานบริหารกำลังพลทางการแพทย์ & คลังสินค้า</p>
+                        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-medical-600 font-medium">
+                            <span>ดูรายละเอียดสัญญา</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card Hosp 2 -->
+                    <div onclick="switchTab('hosp2')" class="cursor-pointer group p-4 rounded-xl border border-slate-200 hover:border-medical-500 hover:shadow-md transition-all bg-white relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">กำลังดำเนินการ</span>
+                            <span class="text-xs text-medical-700 font-bold bg-medical-50 px-2 py-0.5 rounded">สัญญา 2 ปี</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-medical-600 transition-colors">รพ.สอง (Hospital 2)</h3>
+                        <p class="text-xs text-slate-500 mt-1">ดูแลระบบจัดตารางกะเวร และเอกสารสัญญาจัดซื้อ</p>
+                        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-medical-600 font-medium">
+                            <span>ดูรายละเอียดสัญญา</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card Hosp 3 -->
+                    <div onclick="switchTab('hosp3')" class="cursor-pointer group p-4 rounded-xl border border-slate-200 hover:border-medical-500 hover:shadow-md transition-all bg-white relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">ครบสัญญาแล้ว</span>
+                            <span class="text-xs text-medical-700 font-bold bg-medical-50 px-2 py-0.5 rounded">สัญญา 1 ปี</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-medical-600 transition-colors">รพ.สาม (Hospital 3)</h3>
+                        <p class="text-xs text-slate-500 mt-1">ควบคุมคุณภาพบริการ QA/QC และจัดการงานตารางเวร</p>
+                        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-medical-600 font-medium">
+                            <span>ดูรายละเอียดสัญญา</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card Hosp 4 -->
+                    <div onclick="switchTab('hosp4')" class="cursor-pointer group p-4 rounded-xl border border-slate-200 hover:border-medical-500 hover:shadow-md transition-all bg-white relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">ครบสัญญาแล้ว</span>
+                            <span class="text-xs text-medical-700 font-bold bg-medical-50 px-2 py-0.5 rounded">สัญญา 2 ปี</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-medical-600 transition-colors">รพ.สี่ (Hospital 4)</h3>
+                        <p class="text-xs text-slate-500 mt-1">การบริหารคลังสินค้าสาขา และการจัดการสินค้าคงคลัง</p>
+                        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-medical-600 font-medium">
+                            <span>ดูรายละเอียดสัญญา</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card Hosp 5 -->
+                    <div onclick="switchTab('hosp5')" class="cursor-pointer group p-4 rounded-xl border border-slate-200 hover:border-medical-500 hover:shadow-md transition-all bg-white relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">ครบสัญญาแล้ว</span>
+                            <span class="text-xs text-medical-700 font-bold bg-medical-50 px-2 py-0.5 rounded">สัญญา 3 ปี</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-medical-600 transition-colors">รพ.ห้า (Hospital 5)</h3>
+                        <p class="text-xs text-slate-500 mt-1">การดูแลครบวงจร (Full Operations Management)</p>
+                        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-medical-600 font-medium">
+                            <span>ดูรายละเอียดสัญญา</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-hosp1" class="page-content hidden fade-in space-y-6">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-medical-100 text-medical-800 text-xs font-bold px-3 py-1 rounded-full">โรงพยาบาลศูนย์เอกชน</span>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span> กำลังดำเนินการ (Active)
+                            </span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">1. โรงพยาบาลหนึ่ง (Hospital 1)</h1>
+                        <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i> พื้นที่กรุงเทพมหานครและปริมณฑล</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 w-full md:w-auto text-left md:text-right">
+                        <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา (Contract Duration)</span>
+                        <span class="text-xl font-bold text-medical-700">สัญญาระยะเวลา 3 ปี</span>
+                        <span class="text-xs text-slate-400 block mt-0.5">(ปี 2024 - 2027)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-medical-600"></i> ขอบเขตงานและความรับผิดชอบ (Scope of Work)
+                            </h3>
+                            <div class="space-y-3 text-slate-600 text-sm">
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-users text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การบริหารจัดการกำลังพล (Manpower Management)</strong>
+                                        คัดสรร อบรม และวางกำลังพลเจ้าหน้าที่สนับสนุนทางการแพทย์รวมกว่า 45 คน จัดทำโครงสร้างทีมงานและ KPI รายบุคคล
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-calendar-days text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การจัดตารางเวร/กะ (Shift Scheduling)</strong>
+                                        บริหารจัดการตารางเวลาทำงานแบบ 3 กะตลอด 24 ชั่วโมง ควบคุมการลางาน และจัดอัตรากำลังแทนกรณีฉุกเฉินให้ครบ 100%
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-boxes-packing text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">คลังสินค้าและเวชภัณฑ์ประจำสาขา</strong>
+                                        ดูแลรับ-จ่าย พัสดุอุปกรณ์เครื่องมือแพทย์ เบิกจ่ายสินค้าเข้าแผนกต่างๆ ใน รพ. พร้อมทำสรุปบัญชีคลังสินค้าทุกสิ้นเดือน
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-amber-500"></i> ผลงานและความสำเร็จหลัก (Key Achievements)
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="border border-emerald-100 bg-emerald-50/50 p-3.5 rounded-xl">
+                                    <span class="text-xs font-semibold text-emerald-800 block">ลดอัตราการขาดลา</span>
+                                    <span class="text-xl font-bold text-emerald-600">ลดลง 25%</span>
+                                    <p class="text-xs text-slate-600 mt-1">ด้วยระบบติดตามการเข้าเวรออนไลน์แบบ Real-time</p>
+                                </div>
+                                <div class="border border-emerald-100 bg-emerald-50/50 p-3.5 rounded-xl">
+                                    <span class="text-xs font-semibold text-emerald-800 block">คะแนนความพึงพอใจ รพ.</span>
+                                    <span class="text-xl font-bold text-emerald-600">96.5%</span>
+                                    <p class="text-xs text-slate-600 mt-1">จากการประเมินผลงานรอบปีล่าสุด</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 space-y-4 h-fit">
+                        <h4 class="font-bold text-slate-800 border-b border-slate-200 pb-2 text-sm">ข้อมูลสรุปสัญญา</h4>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา</span>
+                            <span class="text-sm font-semibold text-medical-700">3 ปี (36 เดือน)</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ประเภทบริการ</span>
+                            <span class="text-sm font-medium text-slate-800">บริหารกำลังพล + คลังสินค้า</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 block">จำนวนบุคลากรในทีม</span>
+                            <span class="text-sm font-medium text-slate-800">45 คน</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 block">เอกสารสัญญา</span>
+                            <span class="text-sm font-medium text-slate-800">สัญญาจ้างเหมาบริการเลขที่ H1-2024-03</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-hosp2" class="page-content hidden fade-in space-y-6">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-medical-100 text-medical-800 text-xs font-bold px-3 py-1 rounded-full">โรงพยาบาลเฉพาะทาง</span>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span> กำลังดำเนินการ (Active)
+                            </span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">2. โรงพยาบาลสอง (Hospital 2)</h1>
+                        <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i> พื้นที่ภาคกลาง</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 w-full md:w-auto text-left md:text-right">
+                        <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา (Contract Duration)</span>
+                        <span class="text-xl font-bold text-medical-700">สัญญาระยะเวลา 2 ปี</span>
+                        <span class="text-xs text-slate-400 block mt-0.5">(ปี 2024 - 2026)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-medical-600"></i> ขอบเขตงานและความรับผิดชอบ (Scope of Work)
+                            </h3>
+                            <div class="space-y-3 text-slate-600 text-sm">
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-clock text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การจัดตารางกะ (Shift Scheduling Optimization)</strong>
+                                        วางแผนอัตรากำลังพลให้สอดคล้องกับความหนาแน่นของผู้ป่วยในแต่ละช่วงเวลา (Peak/Off-peak)
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-file-contract text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การจัดการเอกสารสัญญา (Contract Documentation)</strong>
+                                        จัดทำและตรวจสอบเอกสารสัญญาจ้างบริการ ตรวจสอบการทำ OT และคำนวณเบี้ยเลี้ยงพนักงานส่งฝ่ายบัญชี
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-amber-500"></i> ผลงานและความสำเร็จหลัก (Key Achievements)
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="border border-emerald-100 bg-emerald-50/50 p-3.5 rounded-xl">
+                                    <span class="text-xs font-semibold text-emerald-800 block">การส่งมอบงานเอกสาร</span>
+                                    <span class="text-xl font-bold text-emerald-600">ถูกต้อง 100%</span>
+                                    <p class="text-xs text-slate-600 mt-1">ไม่มีข้อผิดพลาดในการสรุปยอดเบิกจ่ายตามสัญญา</p>
+                                </div>
+                                <div class="border border-emerald-100 bg-emerald-50/50 p-3.5 rounded-xl">
+                                    <span class="text-xs font-semibold text-emerald-800 block">ประสิทธิภาพจัดกะ</span>
+                                    <span class="text-xl font-bold text-emerald-600">ลดค่า OT 15%</span>
+                                    <p class="text-xs text-slate-600 mt-1">จากการเกลี่ยกำลังพลอย่างมีประสิทธิภาพ</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 space-y-4 h-fit">
+                        <h4 class="font-bold text-slate-800 border-b border-slate-200 pb-2 text-sm">ข้อมูลสรุปสัญญา</h4>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา</span>
+                            <span class="text-sm font-semibold text-medical-700">2 ปี (24 เดือน)</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ประเภทบริการ</span>
+                            <span class="text-sm font-medium text-slate-800">จัดตารางกะ + เอกสารสัญญา</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 block">จำนวนบุคลากรในทีม</span>
+                            <span class="text-sm font-medium text-slate-800">25 คน</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-hosp3" class="page-content hidden fade-in space-y-6">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-medical-100 text-medical-800 text-xs font-bold px-3 py-1 rounded-full">โรงพยาบาลทั่วไป</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-check-circle"></i> ครบสัญญาแล้ว (Completed)
+                            </span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">3. โรงพยาบาลสาม (Hospital 3)</h1>
+                        <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i> พื้นที่ภาคตะวันออก</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 w-full md:w-auto text-left md:text-right">
+                        <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา (Contract Duration)</span>
+                        <span class="text-xl font-bold text-slate-700">สัญญาระยะเวลา 1 ปี</span>
+                        <span class="text-xs text-slate-400 block mt-0.5">(ปี 2023 - 2024)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-medical-600"></i> ขอบเขตงานและความรับผิดชอบ (Scope of Work)
+                            </h3>
+                            <div class="space-y-3 text-slate-600 text-sm">
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-clipboard-check text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การควบคุมคุณภาพบริการ (Quality Assurance)</strong>
+                                        สุ่มตรวจมาตรฐานการให้บริการประจำสัปดาห์ (Audit List) เพื่อคงมาตรฐานความสะอาดและความปลอดภัย
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-user-gear text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การจัดตารางเวรและการฝึกอบรม</strong>
+                                        จัดทำตารางปฏิบัติงานและฝึกอบรมมาตรฐานการบริการ (Service Mind) ให้แก่ทีมงาน
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-amber-500"></i> ผลงานและความสำเร็จหลัก (Key Achievements)
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="border border-blue-100 bg-blue-50/50 p-3.5 rounded-xl">
+                                    <span class="text-xs font-semibold text-blue-800 block">ผ่านเกณฑ์ Audit HA</span>
+                                    <span class="text-xl font-bold text-blue-600">100% Score</span>
+                                    <p class="text-xs text-slate-600 mt-1">ได้รับคำชมเชยจากคณะกรรมการตรวจรับงาน</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 space-y-4 h-fit">
+                        <h4 class="font-bold text-slate-800 border-b border-slate-200 pb-2 text-sm">ข้อมูลสรุปสัญญา</h4>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา</span>
+                            <span class="text-sm font-semibold text-slate-800">1 ปี (12 เดือน)</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ประเภทบริการ</span>
+                            <span class="text-sm font-medium text-slate-800">ควบคุมคุณภาพ + จัดตารางเวร</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-hosp4" class="page-content hidden fade-in space-y-6">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-medical-100 text-medical-800 text-xs font-bold px-3 py-1 rounded-full">โรงพยาบาลรัฐบาล</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-check-circle"></i> ครบสัญญาแล้ว (Completed)
+                            </span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">4. โรงพยาบาลสี่ (Hospital 4)</h1>
+                        <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i> พื้นที่ภาคเหนือ</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 w-full md:w-auto text-left md:text-right">
+                        <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา (Contract Duration)</span>
+                        <span class="text-xl font-bold text-slate-700">สัญญาระยะเวลา 2 ปี</span>
+                        <span class="text-xs text-slate-400 block mt-0.5">(ปี 2021 - 2023)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-medical-600"></i> ขอบเขตงานและความรับผิดชอบ (Scope of Work)
+                            </h3>
+                            <div class="space-y-3 text-slate-600 text-sm">
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-warehouse text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การบริหารจัดการคลังสินค้า (Stock Management)</strong>
+                                        ตรวจเช็กสต็อกสินค้าคงคลัง ควบคุมสินค้าหมดอายุ (First-Expiring, First-Out) และรายงานยอดสินค้าคงเหลือ
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-truck-ramp-box text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การกระจายสินค้าไปยังวอร์ด</strong>
+                                        จัดเตรียมและกระจายอุปกรณ์การแพทย์ตามคำสั่งเบิกของแต่ละแผนกอย่างทันท่วงที
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-amber-500"></i> ผลงานและความสำเร็จหลัก (Key Achievements)
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="border border-blue-100 bg-blue-50/50 p-3.5 rounded-xl">
+                                    <span class="text-xs font-semibold text-blue-800 block">สินค้าสูญหาย/เสียหาย</span>
+                                    <span class="text-xl font-bold text-blue-600">0% Deadstock</span>
+                                    <p class="text-xs text-slate-600 mt-1">บริหารระบบสต็อกได้อย่างแม่นยำสูง</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 space-y-4 h-fit">
+                        <h4 class="font-bold text-slate-800 border-b border-slate-200 pb-2 text-sm">ข้อมูลสรุปสัญญา</h4>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา</span>
+                            <span class="text-sm font-semibold text-slate-800">2 ปี (24 เดือน)</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ประเภทบริการ</span>
+                            <span class="text-sm font-medium text-slate-800">บริหารคลังสินค้า & กระจายเวชภัณฑ์</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-hosp5" class="page-content hidden fade-in space-y-6">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-medical-100 text-medical-800 text-xs font-bold px-3 py-1 rounded-full">เครือโรงพยาบาลเอกชน</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-check-circle"></i> ครบสัญญาแล้ว (Completed)
+                            </span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">5. โรงพยาบาลห้า (Hospital 5)</h1>
+                        <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i> พื้นที่ภาคใต้</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 w-full md:w-auto text-left md:text-right">
+                        <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา (Contract Duration)</span>
+                        <span class="text-xl font-bold text-slate-700">สัญญาระยะเวลา 3 ปี</span>
+                        <span class="text-xs text-slate-400 block mt-0.5">(ปี 2018 - 2021)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-medical-600"></i> ขอบเขตงานและความรับผิดชอบ (Scope of Work)
+                            </h3>
+                            <div class="space-y-3 text-slate-600 text-sm">
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-sitemap text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การดูแลครบวงจร (Full Operations Management)</strong>
+                                        บริหารจัดการกำลังพลกว่า 60 คน การจัดกะการทำงาน คลังสินค้า และเอกสารเบิกจ่ายงบประมาณประจำปี
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <i class="fa-solid fa-chart-line text-medical-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-slate-800 block mb-0.5">การปรับปรุงกระบวนการทำงาน (Process Improvement)</strong>
+                                        วางระบบการรับส่งต่อข้อมูลแบบ Digital Logbook ช่วยลดเวลาขั้นตอนการทำงานระหว่างแผนก
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-amber-500"></i> ผลงานและความสำเร็จหลัก (Key Achievements)
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="border border-blue-100 bg-blue-50/50 p-3.5 rounded-xl">
+                                    <span class="text-xs font-semibold text-blue-800 block">รางวัลผู้ให้บริการดีเด่น</span>
+                                    <span class="text-xl font-bold text-blue-600">Best Vendor Award</span>
+                                    <p class="text-xs text-slate-600 mt-1">ได้รับมอบรางวัลประจำปีจากคณะผู้บริหาร รพ.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 space-y-4 h-fit">
+                        <h4 class="font-bold text-slate-800 border-b border-slate-200 pb-2 text-sm">ข้อมูลสรุปสัญญา</h4>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ระยะเวลาสัญญา</span>
+                            <span class="text-sm font-semibold text-slate-800">3 ปี (36 เดือน)</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 block">ประเภทบริการ</span>
+                            <span class="text-sm font-medium text-slate-800">บริหารการปฏิบัติการแบบครบวงจร</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <p class="text-sm text-slate-300 font-semibold">Healthcare Operations Portfolio</p>
+                <p class="text-xs text-slate-500 mt-1">ระบบบริหารจัดการประวัติการดูแลโรงพยาบาลและสัญญางาน</p>
+            </div>
+            <div class="text-xs text-slate-500">
+                &copy; 2026 Portfolio Management. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Preset Password
+        const CORRECT_PASSCODE = '1234';
+
+        // Login Handler Function
+        function handleLogin(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('passcode-input').value.trim();
+            const errorMsg = document.getElementById('login-error');
+            const overlay = document.getElementById('login-overlay');
+
+            if (inputVal === CORRECT_PASSCODE) {
+                errorMsg.classList.add('hidden');
+                // Hide passcode overlay with transition
+                overlay.classList.add('transition-opacity', 'duration-300', 'opacity-0');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 300);
+            } else {
+                errorMsg.classList.remove('hidden');
+                document.getElementById('passcode-input').value = '';
+                document.getElementById('passcode-input').focus();
+            }
+        }
+
+        // Logout Handler Function
+        function handleLogout() {
+            const overlay = document.getElementById('login-overlay');
+            document.getElementById('passcode-input').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+            
+            overlay.style.display = 'flex';
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+            }, 10);
+            
+            switchTab('about');
+        }
+
+        // List of all pages/tabs
+        const tabs = ['about', 'hosp1', 'hosp2', 'hosp3', 'hosp4', 'hosp5'];
+
+        function switchTab(tabId) {
+            tabs.forEach(id => {
+                const page = document.getElementById(`page-${id}`);
+                if (page) page.classList.add('hidden');
+                
+                const navBtn = document.getElementById(`nav-${id}`);
+                if (navBtn) navBtn.classList.remove('tab-active');
+
+                const mnavBtn = document.getElementById(`mnav-${id}`);
+                if (mnavBtn) mnavBtn.classList.remove('mobile-tab-active');
+            });
+
+            const activePage = document.getElementById(`page-${tabId}`);
+            if (activePage) activePage.classList.remove('hidden');
+
+            const activeNavBtn = document.getElementById(`nav-${tabId}`);
+            if (activeNavBtn) activeNavBtn.classList.add('tab-active');
+
+            const activeMNavBtn = document.getElementById(`mnav-${tabId}`);
+            if (activeMNavBtn) activeMNavBtn.classList.add('mobile-tab-active');
+
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                toggleMobileMenu();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                menu.classList.add('hidden');
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            switchTab('about');
+        });
+    </script>
+</body>
+</html>
